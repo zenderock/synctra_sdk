@@ -1,5 +1,9 @@
 import 'package:meta/meta.dart';
 
+/// Types d'événements analytics supportés par le SDK.
+/// 
+/// Chaque type correspond à une action spécifique que l'utilisateur
+/// peut effectuer avec les liens dynamiques et codes de parrainage.
 enum AnalyticsEventType {
   linkCreated,
   linkClicked,
@@ -11,6 +15,10 @@ enum AnalyticsEventType {
   customEvent,
 }
 
+/// Représente un événement analytics avec ses données et métadonnées.
+/// 
+/// Un [AnalyticsEvent] capture une action utilisateur avec toutes les
+/// informations contextuelles nécessaires pour l'analyse et le suivi.
 @immutable
 class AnalyticsEvent {
   final String id;
@@ -47,6 +55,7 @@ class AnalyticsEvent {
     this.referrer,
   });
 
+  /// Crée un [AnalyticsEvent] à partir d'une Map JSON.
   factory AnalyticsEvent.fromJson(Map<String, dynamic> json) {
     return AnalyticsEvent(
       id: json['id'] as String,
@@ -70,6 +79,7 @@ class AnalyticsEvent {
     );
   }
 
+  /// Convertit l'événement en Map pour la sérialisation JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
-
-import '../models/models.dart';
+import '../models/analytics_event.dart';
 import '../utils/utils.dart';
 import 'api_service.dart';
 

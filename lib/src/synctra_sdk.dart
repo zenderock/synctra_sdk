@@ -1,12 +1,33 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 import 'models/models.dart';
 import 'services/services.dart';
 import 'exceptions/exceptions.dart';
 import 'utils/utils.dart';
 
+/// SDK principal pour la gestion des liens dynamiques et du deferred deep linking.
+/// 
+/// Synctra SDK est une alternative moderne à Firebase Dynamic Links qui offre :
+/// - Création et gestion de liens dynamiques
+/// - Deferred deep linking intelligent
+/// - Analytics avancés avec tracking automatique
+/// - Système de codes de parrainage
+/// - Détection d'installation d'applications
+/// 
+/// Exemple d'utilisation :
+/// ```dart
+/// const config = SynctraConfig(
+///   apiKey: 'votre_cle_api',
+///   projectId: 'votre_project_id',
+/// );
+/// 
+/// await SynctraSDK.initialize(config);
+/// 
+/// final link = await SynctraSDK.instance.createLink(
+///   originalUrl: 'https://monapp.com/produit/123',
+/// );
+/// ```
 class SynctraSDK {
   static SynctraSDK? _instance;
   static SynctraConfig? _config;
@@ -25,11 +46,32 @@ class SynctraSDK {
 
   SynctraSDK._internal();
 
+  /// Instance singleton du SDK Synctra.
+  /// 
+  /// Utilisez cette propriété pour accéder aux fonctionnalités du SDK
+  /// après l'avoir initialisé avec [initialize].
   static SynctraSDK get instance {
     _instance ??= SynctraSDK._internal();
     return _instance!;
   }
 
+  /// Initialise le SDK Synctra avec la configuration fournie.
+  /// 
+  /// Cette méthode doit être appelée une seule fois au démarrage de l'application,
+  /// de préférence dans la fonction main().
+  /// 
+  /// [config] La configuration du SDK contenant la clé API et l'ID de projet.
+  /// 
+  /// Throws [ConfigurationException] si la configuration est invalide.
+  /// 
+  /// Exemple :
+  /// ```dart
+  /// const config = SynctraConfig(
+  ///   apiKey: 'votre_cle_api',
+  ///   projectId: 'votre_project_id',
+  /// );
+  /// await SynctraSDK.initialize(config);
+  /// ```
   static Future<void> initialize(SynctraConfig config) async {
     final sdk = SynctraSDK.instance;
     _config = config;
@@ -63,7 +105,7 @@ class SynctraSDK {
     } catch (e) {
       throw ConfigurationException(
         'Erreur lors de l\'initialisation du SDK: ${e.toString()}',
-        code: 'INITIALIZATION_FAILED',
+        code: 'INITIALIZATION_ERROR',
         originalError: e,
       );
     }
@@ -89,6 +131,23 @@ class SynctraSDK {
   }
 
   // Deep Link Management
+  
+  /// Crée un nouveau lien dynamique.
+  /// 
+  /// [originalUrl] L'URL de destination du lien.
+  /// [parameters] Paramètres personnalisés à inclure dans le lien.
+  /// [fallbackUrl] URL de secours si l'application n'est pas installée.
+  /// [iosAppStoreUrl] URL de l'App Store iOS.
+  /// [androidPlayStoreUrl] URL du Google Play Store.
+  /// [expiresAt] Date d'expiration du lien.
+  /// [campaignId] Identifiant de campagne pour le tracking.
+  /// [referralCode] Code de parrainage associé au lien.
+  /// [metadata] Métadonnées du lien (titre, description, etc.).
+  /// 
+  /// Returns un [DeepLink] contenant l'URL courte générée.
+  /// 
+  /// Throws [ValidationException] si l'URL est invalide.
+  /// Throws [NetworkException] en cas d'erreur réseau.
   Future<DeepLink> createLink({
     required String originalUrl,
     Map<String, dynamic>? parameters,
@@ -132,6 +191,11 @@ class SynctraSDK {
     return link;
   }
 
+  /// Récupère un lien dynamique par son identifiant.
+  /// 
+  /// [linkId] L'identifiant unique du lien à récupérer.
+  /// 
+  /// Returns le [DeepLink] correspondant ou null s'il n'existe pas.
   Future<DeepLink?> getLink(String linkId) async {
     _ensureInitialized();
     return await _deepLinkService.getLink(linkId);
@@ -152,17 +216,38 @@ class SynctraSDK {
     );
   }
 
+  /// Raccourcit une URL en créant un lien dynamique simple.
+  /// 
+  /// [originalUrl] L'URL à raccourcir.
+  /// 
+  /// Returns l'URL courte générée.
   Future<String> shortenUrl(String originalUrl) async {
     _ensureInitialized();
     return await _deepLinkService.shortenUrl(originalUrl);
   }
 
   // Deferred Deep Linking
+  
+  /// Traite un lien entrant dans l'application.
+  /// 
+  /// Cette méthode doit être appelée lorsque l'application reçoit un lien
+  /// via un intent, une URL scheme ou un universal link.
+  /// 
+  /// [url] L'URL du lien entrant à traiter.
   Future<void> handleIncomingLink(String url) async {
     _ensureInitialized();
     await _deferredDeepLinkService.handleIncomingLink(url);
   }
 
+  /// Attend un lien différé après l'installation de l'application.
+  /// 
+  /// Cette méthode est utile pour récupérer les paramètres d'un lien
+  /// qui a été cliqué avant l'installation de l'application.
+  /// 
+  /// [packageName] Le nom du package de l'application.
+  /// [timeout] Durée maximale d'attente (défaut: 30 secondes).
+  /// 
+  /// Returns le [DeepLink] différé ou null si aucun lien n'est trouvé.
   Future<DeepLink?> waitForDeferredLink({
     required String packageName,
     Duration timeout = const Duration(seconds: 30),
@@ -232,14 +317,14 @@ class SynctraSDK {
     _ensureInitialized();
     
     if (!_config!.enableReferrals) {
-      throw ConfigurationException(
+      throw const ConfigurationException(
         'Les codes de parrainage ne sont pas activés dans la configuration',
         code: 'REFERRALS_DISABLED',
       );
     }
 
     if (_userId == null) {
-      throw ConfigurationException(
+      throw const ConfigurationException(
         'Un utilisateur doit être connecté pour créer un code de parrainage',
         code: 'USER_NOT_SET',
       );
@@ -266,7 +351,7 @@ class SynctraSDK {
     _ensureInitialized();
     
     if (_userId == null) {
-      throw ConfigurationException(
+      throw const ConfigurationException(
         'Un utilisateur doit être connecté pour utiliser un code de parrainage',
         code: 'USER_NOT_SET',
       );

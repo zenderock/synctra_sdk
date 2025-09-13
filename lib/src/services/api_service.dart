@@ -167,16 +167,15 @@ class ApiService {
         );
       } catch (e) {
         throw NetworkException(
-          'Erreur lors du décodage de la réponse JSON',
-          code: 'JSON_DECODE_ERROR',
-          originalError: e,
+          'Erreur HTTP ${response.statusCode}',
+          statusCode: response.statusCode,
         );
       }
     } else {
       _throwNetworkException(statusCode, response.body);
     }
     
-    throw NetworkException(
+    throw const NetworkException(
       'Réponse inattendue du serveur',
       code: 'UNEXPECTED_RESPONSE',
     );

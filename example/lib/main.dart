@@ -1,21 +1,33 @@
+/// Application d'exemple démontrant l'utilisation du SDK Synctra.
+/// 
+/// Cette application montre comment :
+/// - Initialiser le SDK Synctra
+/// - Créer des liens dynamiques
+/// - Gérer les codes de parrainage
+/// - Afficher les informations du SDK
+library;
+
 import 'package:flutter/material.dart';
 import 'package:synctra_sdk/synctra_sdk.dart';
 
+/// Point d'entrée principal de l'application d'exemple.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  
   const config = SynctraConfig(
     apiKey: 'your_api_key_here',
     projectId: 'your_project_id_here',
     debugMode: true,
   );
-
+  
   await SynctraSDK.initialize(config);
-
+  
   runApp(const SynctraExampleApp());
 }
 
+/// Widget racine de l'application d'exemple Synctra.
 class SynctraExampleApp extends StatelessWidget {
+  /// Crée une nouvelle instance de [SynctraExampleApp].
   const SynctraExampleApp({super.key});
 
   @override
@@ -38,7 +50,12 @@ class SynctraExampleApp extends StatelessWidget {
   }
 }
 
+/// Page d'accueil de l'application d'exemple.
+/// 
+/// Affiche une interface permettant de tester les fonctionnalités
+/// principales du SDK Synctra.
 class HomePage extends StatefulWidget {
+  /// Crée une nouvelle instance de [HomePage].
   const HomePage({super.key});
 
   @override
@@ -59,8 +76,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initializeUser() async {
-    await SynctraSDK.instance
-        .setUserId('demo_user_${DateTime.now().millisecondsSinceEpoch}');
+    await SynctraSDK.instance.setUserId('demo_user_${DateTime.now().millisecondsSinceEpoch}');
   }
 
   Future<void> _createLink() async {
@@ -105,9 +121,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final referralCode = await SynctraSDK.instance.createReferralCode(
-        customCode: _referralController.text.isNotEmpty
-            ? _referralController.text
-            : null,
+        customCode: _referralController.text.isNotEmpty ? _referralController.text : null,
         maxUses: 10,
         rewardAmount: 5.0,
         rewardType: 'credit',
@@ -188,8 +202,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 4),
                             SelectableText(
                               _createdLink!,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -240,17 +253,10 @@ class _HomePageState extends State<HomePage> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),
-                    _buildInfoRow(
-                        'Statut',
-                        SynctraSDK.instance.isInitialized
-                            ? 'Initialisé'
-                            : 'Non initialisé'),
-                    _buildInfoRow(
-                        'User ID', SynctraSDK.instance.userId ?? 'Non défini'),
-                    _buildInfoRow('Session ID',
-                        SynctraSDK.instance.sessionId ?? 'Non défini'),
-                    _buildInfoRow('Device ID',
-                        SynctraSDK.instance.deviceId ?? 'Non défini'),
+                    _buildInfoRow('Statut', SynctraSDK.instance.isInitialized ? 'Initialisé' : 'Non initialisé'),
+                    _buildInfoRow('User ID', SynctraSDK.instance.userId ?? 'Non défini'),
+                    _buildInfoRow('Session ID', SynctraSDK.instance.sessionId ?? 'Non défini'),
+                    _buildInfoRow('Device ID', SynctraSDK.instance.deviceId ?? 'Non défini'),
                   ],
                 ),
               ),
@@ -260,7 +266,7 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _message!.startsWith('Erreur')
+                  color: _message!.startsWith('Erreur') 
                       ? Theme.of(context).colorScheme.errorContainer
                       : Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(8),

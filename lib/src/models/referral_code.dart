@@ -1,5 +1,10 @@
 import 'package:meta/meta.dart';
 
+/// Représente un code de parrainage avec ses propriétés et métadonnées.
+/// 
+/// Un [ReferralCode] encapsule toutes les informations nécessaires pour
+/// gérer un système de parrainage, incluant les limites d'utilisation,
+/// les récompenses et le suivi des statistiques.
 @immutable
 class ReferralCode {
   final String code;
@@ -28,6 +33,7 @@ class ReferralCode {
     this.rewardType,
   });
 
+  /// Crée une instance de [ReferralCode] à partir d'une Map JSON.
   factory ReferralCode.fromJson(Map<String, dynamic> json) {
     return ReferralCode(
       code: json['code'] as String,
@@ -46,6 +52,7 @@ class ReferralCode {
     );
   }
 
+  /// Convertit l'instance en Map pour la sérialisation JSON.
   Map<String, dynamic> toJson() {
     return {
       'code': code,
@@ -62,16 +69,24 @@ class ReferralCode {
     };
   }
 
+  /// Vérifie si le code a expiré.
   bool get isExpired {
     if (expiresAt == null) return false;
     return DateTime.now().isAfter(expiresAt!);
   }
 
+  /// Vérifie si le code a atteint sa limite d'utilisation.
   bool get hasReachedMaxUses {
     if (maxUses == -1) return false;
     return currentUses >= maxUses;
   }
 
+  /// Vérifie si le code de parrainage est valide.
+  /// 
+  /// Un code est considéré comme valide s'il :
+  /// - Est actif
+  /// - N'a pas expiré
+  /// - N'a pas atteint sa limite d'utilisation
   bool get isValid => isActive && !isExpired && !hasReachedMaxUses;
 
   ReferralCode copyWith({

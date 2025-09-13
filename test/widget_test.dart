@@ -12,13 +12,19 @@ void main() {
   group('SynctraSDK Tests', () {
     test('SynctraConfig creation', () {
       const config = SynctraConfig(
-        apiKey: 'test_api_key',
-        projectId: 'test_project_id',
+        apiKey: 'test_key',
+        projectId: 'test_project',
       );
 
-      expect(config.apiKey, 'test_api_key');
-      expect(config.projectId, 'test_project_id');
-      expect(config.enableAnalytics, true);
+      expect(config.toJson(), const {
+        'apiKey': 'test_key',
+        'projectId': 'test_project',
+        'baseUrl': 'https://api.synctra.link',
+        'debugMode': true,
+        'enableAnalytics': true,
+        'enableReferrals': true,
+        'timeout': 30000,
+      });
       expect(config.enableDeepLinking, true);
       expect(config.enableReferrals, true);
     });
@@ -28,7 +34,7 @@ void main() {
         id: 'test_id',
         originalUrl: 'https://example.com',
         shortUrl: 'https://short.ly/abc123',
-        parameters: {'key': 'value'},
+        parameters: const {'key': 'value'},
         createdAt: DateTime.now(),
       );
 

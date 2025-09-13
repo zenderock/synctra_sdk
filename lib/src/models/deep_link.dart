@@ -1,5 +1,11 @@
 import 'package:meta/meta.dart';
+import '../utils/link_validator.dart';
 
+/// Représente un lien dynamique avec ses métadonnées et paramètres.
+/// 
+/// Un [DeepLink] encapsule toutes les informations nécessaires pour
+/// créer, gérer et suivre un lien dynamique, incluant l'URL originale,
+/// l'URL raccourcie, les paramètres personnalisés et les métadonnées.
 @immutable
 class DeepLink {
   final String id;
@@ -30,6 +36,7 @@ class DeepLink {
     this.referralCode,
   });
 
+  /// Crée une instance de [DeepLink] à partir d'une Map JSON.
   factory DeepLink.fromJson(Map<String, dynamic> json) {
     return DeepLink(
       id: json['id'] as String,
@@ -49,6 +56,7 @@ class DeepLink {
     );
   }
 
+  /// Convertit l'instance en Map pour la sérialisation JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -66,12 +74,29 @@ class DeepLink {
     };
   }
 
+  /// Vérifie si le lien a expiré.
+  /// 
+  /// Retourne `true` si une date d'expiration est définie
+  /// et que cette date est dépassée.
   bool get isExpired {
     if (expiresAt == null) return false;
     return DateTime.now().isAfter(expiresAt!);
   }
 
-  bool get isValid => isActive && !isExpired;
+  /// Vérifie si le lien est valide.
+  /// 
+  /// Un lien est considéré comme valide s'il :
+  /// - A un ID non vide
+  /// - A une URL originale valide
+  /// - A une URL raccourcie valide
+  /// - N'est pas expiré (si une date d'expiration est définie)
+  bool get isValid {
+    final validator = LinkValidator();
+    return isActive && 
+           !isExpired && 
+           validator.isValidUrl(originalUrl) && 
+           validator.isValidUrl(shortUrl);
+  }
 
   DeepLink copyWith({
     String? id,

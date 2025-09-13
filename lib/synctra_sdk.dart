@@ -1,4 +1,3 @@
-library synctra_sdk;
 
 export 'src/synctra_sdk.dart';
 export 'src/models/models.dart';
