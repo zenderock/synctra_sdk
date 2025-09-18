@@ -5,7 +5,7 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.1] - 2024-09-18
+## [1.0.2] - 2024-09-18
 
 ### Modifié
 - Mise à jour de `shared_preferences` vers ^2.5.3 (était ^2.2.2)
@@ -17,6 +17,11 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Compatibilité avec les dernières versions des dépendances
 - Corrections de bugs et améliorations de performance des packages mis à jour
 - Meilleure stabilité sur toutes les plateformes
+
+## [1.0.1] - 2024-09-18
+
+### Note
+- Version publiée précédemment
 
 ## [1.0.0+1] - 2024-09-18
 
