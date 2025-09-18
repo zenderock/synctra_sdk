@@ -41,8 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _initializeSynctra() async {
     try {
       await SynctraSDK.instance.initialize(
-        apiBaseUrl: 'http://10.42.0.1:8000',
-        projectId: '5890866f-a6cf-49df-9853-a256a1aa41de',
+        apiBaseUrl: '',
+        projectId: '',
         apiKey: 'your_api_key_here',
         onLinkReceived: (linkData) {
           setState(() {
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       );
-      
+
       setState(() {
         _status = 'SDK initialisé avec succès';
       });
@@ -90,7 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Status:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Status:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text(_status),
                   ],
                 ),
@@ -104,7 +105,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Lien actuel:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Lien actuel:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('ID: ${_currentLink!.id}'),
                       Text('Code: ${_currentLink!.shortCode}'),
                       Text('URL: ${_currentLink!.originalUrl}'),
@@ -125,12 +127,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Code de parrainage:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text('Code de parrainage:',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                       Text('Code: ${_currentReferral!.code}'),
                       Text('Type récompense: ${_currentReferral!.rewardType}'),
                       Text('Valeur: ${_currentReferral!.rewardValue}'),
-                      Text('Utilisations: ${_currentReferral!.currentUses}/${_currentReferral!.maxUses ?? "∞"}'),
-                      Text('Actif: ${_currentReferral!.isActive ? "Oui" : "Non"}'),
+                      Text(
+                          'Utilisations: ${_currentReferral!.currentUses}/${_currentReferral!.maxUses ?? "∞"}'),
+                      Text(
+                          'Actif: ${_currentReferral!.isActive ? "Oui" : "Non"}'),
                       if (_currentReferral!.expiresAt != null)
                         Text('Expire le: ${_currentReferral!.expiresAt}'),
                     ],
@@ -144,7 +149,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final linkId = await SynctraSDK.instance.getCurrentLinkId();
+                      final linkId =
+                          await SynctraSDK.instance.getCurrentLinkId();
                       setState(() {
                         _status = 'ID lien actuel: ${linkId ?? "Aucun"}';
                       });
@@ -156,7 +162,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      final referralCode = await SynctraSDK.instance.getReferralCode();
+                      final referralCode =
+                          await SynctraSDK.instance.getReferralCode();
                       setState(() {
                         _status = 'Code parrainage: ${referralCode ?? "Aucun"}';
                       });

@@ -77,8 +77,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _setupSDKCallbacks() {
     SynctraSDK.instance.initialize(
-      apiBaseUrl: 'http://192.168.0.128:8000',
-      projectId: '5890866f-a6cf-49df-9853-a256a1aa41de',
+      apiBaseUrl: '',
+      projectId: '',
       apiKey: 'your_api_key_here',
       onLinkReceived: (linkData) {
         setState(() {

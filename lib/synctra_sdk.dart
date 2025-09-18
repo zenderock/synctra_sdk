@@ -11,15 +11,15 @@ import 'package:crypto/crypto.dart';
 class SynctraSDK {
   static SynctraSDK? _instance;
   static SynctraSDK get instance => _instance ??= SynctraSDK._internal();
-  
+
   SynctraSDK._internal();
-  
+
   String? _apiBaseUrl;
   String? _projectId;
   String? _apiKey;
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
-  
+
   // Callbacks
   Function(SynctraLinkData)? _onLinkReceived;
   Function(SynctraReferralData)? _onReferralDetected;
@@ -40,15 +40,15 @@ class SynctraSDK {
     _onLinkReceived = onLinkReceived;
     _onReferralDetected = onReferralDetected;
     _onError = onError;
-    
+
     _appLinks = AppLinks();
-    
+
     // Vérifier si c'est la première installation
     await _checkFirstInstall();
-    
+
     // Écouter les deep links
     await _setupDeepLinkListener();
-    
+
     // Traiter le lien initial si l'app a été ouverte via un deep link
     await _handleInitialLink();
   }
@@ -57,19 +57,21 @@ class SynctraSDK {
   Future<void> _checkFirstInstall() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final isFirstInstall = !prefs.containsKey('synctra_first_install_checked');
-      
+      final isFirstInstall =
+          !prefs.containsKey('synctra_first_install_checked');
+
       if (isFirstInstall) {
         await prefs.setBool('synctra_first_install_checked', true);
-        
+
         // Générer la signature du device
         final deviceSignature = await _generateDeviceSignature();
-        
+
         // Chercher une signature correspondante dans la BD
         await _searchForSignature(deviceSignature);
       }
     } catch (e) {
-      _onError?.call('Erreur lors de la vérification de première installation: $e');
+      _onError
+          ?.call('Erreur lors de la vérification de première installation: $e');
     }
   }
 
@@ -78,19 +80,21 @@ class SynctraSDK {
     try {
       final deviceInfo = DeviceInfoPlugin();
       String signature = '';
-      
+
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
-        signature = '${androidInfo.model}_${androidInfo.brand}_${androidInfo.device}';
+        signature =
+            '${androidInfo.model}_${androidInfo.brand}_${androidInfo.device}';
       } else if (Platform.isIOS) {
         final iosInfo = await deviceInfo.iosInfo;
-        signature = '${iosInfo.model}_${iosInfo.name}_${iosInfo.identifierForVendor}';
+        signature =
+            '${iosInfo.model}_${iosInfo.name}_${iosInfo.identifierForVendor}';
       }
-      
+
       // Hash de la signature pour la sécurité
       final bytes = utf8.encode(signature);
       final digest = sha256.convert(bytes);
-      
+
       return digest.toString();
     } catch (e) {
       _onError?.call('Erreur génération signature: $e');
@@ -119,13 +123,13 @@ class SynctraSDK {
         if (data['found'] == true) {
           final linkId = data['link_id'];
           final referralCode = data['referral_code'];
-          
+
           // Sauvegarder les infos localement
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('synctra_link_id', linkId);
           if (referralCode != null) {
             await prefs.setString('synctra_referral_code', referralCode);
-            
+
             // Récupérer les détails du code de parrainage
             final referralData = await _fetchReferralData(referralCode);
             if (referralData != null) {
@@ -158,7 +162,7 @@ class SynctraSDK {
   /// Traite le lien initial si l'app a été ouverte via un deep link
   Future<void> _handleInitialLink() async {
     try {
-      final initialUri = await _appLinks.getInitialAppLink();
+      final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
         await _handleDeepLink(initialUri);
       }
@@ -175,16 +179,16 @@ class SynctraSDK {
         print('URI complète: $uri');
         print('Paramètres: ${uri.queryParameters}');
       }
-      
+
       // Extraire les paramètres depuis l'URI
       final linkId = uri.queryParameters['id'];
       final referralCode = uri.queryParameters['rel'];
-      
+
       if (kDebugMode) {
         print('Link ID: $linkId');
         print('Referral Code: $referralCode');
       }
-      
+
       if (linkId != null) {
         // Cas 1: Lien dynamique (avec ou sans code de parrainage associé)
         if (kDebugMode) {
@@ -216,28 +220,28 @@ class SynctraSDK {
       if (kDebugMode) {
         print('=== TRAITEMENT LIEN SHORT CODE: $linkShortCode ===');
       }
-      
+
       // Récupérer les données du lien d'abord pour obtenir l'ID numérique
       final linkData = await _fetchLinkData(linkShortCode);
       if (linkData != null) {
         if (kDebugMode) {
           print('Données lien récupérées, ID numérique: ${linkData.id}');
         }
-        
+
         // Sauvegarder l'ID numérique du lien (pas le short_code)
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('synctra_current_link_id', linkData.id);
-        
+
         if (kDebugMode) {
           print('ID numérique lien sauvegardé localement: ${linkData.id}');
         }
-        
+
         // Appeler le callback d'abord
         _onLinkReceived?.call(linkData);
-        
+
         // Enregistrer la conversion avec l'ID numérique
         await _trackConversion(linkData.id);
-        
+
         // Si le lien est lié à un code de parrainage
         if (linkData.referralCode != null) {
           await _handleReferralCode(linkData.referralCode!);
@@ -262,7 +266,7 @@ class SynctraSDK {
       // Sauvegarder le code de parrainage
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('synctra_referral_code', referralCode);
-      
+
       // Récupérer les données du code de parrainage
       final referralData = await _fetchReferralData(referralCode);
       if (referralData != null) {
@@ -278,11 +282,13 @@ class SynctraSDK {
     try {
       if (kDebugMode) {
         print('=== RÉCUPÉRATION DONNÉES LIEN ===');
-        print('URL: $_apiBaseUrl/api/v1/sdk/link/$linkId?project_id=$_projectId');
+        print(
+            'URL: $_apiBaseUrl/api/v1/sdk/link/$linkId?project_id=$_projectId');
       }
-      
+
       final response = await http.get(
-        Uri.parse('$_apiBaseUrl/api/v1/sdk/link/$linkId?project_id=$_projectId'),
+        Uri.parse(
+            '$_apiBaseUrl/api/v1/sdk/link/$linkId?project_id=$_projectId'),
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': _apiKey!,
@@ -319,7 +325,8 @@ class SynctraSDK {
   Future<SynctraReferralData?> _fetchReferralData(String referralCode) async {
     try {
       final response = await http.get(
-        Uri.parse('$_apiBaseUrl/api/v1/sdk/referral/$referralCode?project_id=$_projectId'),
+        Uri.parse(
+            '$_apiBaseUrl/api/v1/sdk/referral/$referralCode?project_id=$_projectId'),
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': _apiKey!,
@@ -341,7 +348,7 @@ class SynctraSDK {
     try {
       final prefs = await SharedPreferences.getInstance();
       final linkId = prefs.getString('synctra_current_link_id');
-      
+
       if (linkId != null) {
         return await _fetchLinkData(linkId);
       }
@@ -364,15 +371,16 @@ class SynctraSDK {
   }
 
   /// Enregistre une conversion (ouverture app via lien)
-  Future<void> _trackConversion(String linkId, {double? conversionValue}) async {
+  Future<void> _trackConversion(String linkId,
+      {double? conversionValue}) async {
     try {
       if (kDebugMode) {
         print('=== TRACKING CONVERSION ===');
         print('Link ID: $linkId');
       }
-      
+
       final deviceSignature = await _generateDeviceSignature();
-      
+
       final response = await http.post(
         Uri.parse('$_apiBaseUrl/api/v1/sdk/track-conversion'),
         headers: {
@@ -498,8 +506,8 @@ class SynctraReferralData {
       maxUses: json['max_uses'],
       currentUses: json['current_uses'],
       isActive: json['is_active'],
-      expiresAt: json['expires_at'] != null 
-          ? DateTime.parse(json['expires_at']) 
+      expiresAt: json['expires_at'] != null
+          ? DateTime.parse(json['expires_at'])
           : null,
     );
   }

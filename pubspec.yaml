@@ -1,7 +1,10 @@
 name: synctra_sdk
-description: "SDK Flutter pour Synctra - Gestion des deep links et tracking d'installation"
-version: 1.0.0+1
-publish_to: 'none'
+description: "SDK Flutter professionnel pour la gestion des liens dynamiques, deferred deep linking et analytics. Alternative moderne et puissante à Firebase Dynamic Links."
+version: 1.0.1
+homepage: https://synctra.link
+repository: https://github.com/synctra/synctra_sdk
+issue_tracker: https://github.com/synctra/synctra_sdk/issues
+documentation: https://docs.synctra.link
 
 environment:
   sdk: '>=3.4.4 <4.0.0'
@@ -11,10 +14,10 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.1.0
-  shared_preferences: ^2.2.2
-  device_info_plus: ^9.1.0
-  app_links: ^3.4.3
-  crypto: ^3.0.3
+  shared_preferences: ^2.5.3
+  device_info_plus: ^12.1.0
+  app_links: ^6.4.1
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:
